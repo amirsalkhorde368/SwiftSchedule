@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftSchedule | دستیار هوشمند مطالعه و زمان‌بندی</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Vazirmatn -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="glass sticky top-0 z-50 border-b border-slate-800/80 px-4 py-3 shadow-lg">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-bolt-lightning text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">SwiftSchedule</h1>
+                    <p class="text-xs text-slate-400">دستیار هوشمند زمان‌بندی (نسخه جشنواره خوارزمی)</p>
+                </div>
+            </div>
+
+            <!-- Install PWA Button -->
+            <button id="installBtn" class="hidden items-center space-x-2 space-x-reverse bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-lg font-medium transition shadow-lg shadow-emerald-600/20">
+                <i class="fa-solid fa-download"></i>
+                <span>نصب اپلیکیشن</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 space-y-6">
+
+        <!-- Quick Input Form -->
+        <section class="glass rounded-2xl p-5 shadow-xl">
+            <h2 class="text-sm font-semibold text-blue-400 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle"></i> افزودن تسک یا برنامه جدید
+            </h2>
+            <form id="taskForm" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <input type="text" id="taskTitle" placeholder="عنوان فعالیت (مثلاً مطالعه ریاضی)..." required
+                    class="sm:col-span-5 bg-slate-900/80 border border-slate-700/60 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                
+                <select id="taskPriority" class="sm:col-span-3 bg-slate-900/80 border border-slate-700/60 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                    <option value="high">اولویت بالا 🔥</option>
+                    <option value="medium" selected>اولویت متوسط ⚡</option>
+                    <option value="low">اولویت کم ☕</option>
+                </select>
+
+                <input type="number" id="taskDuration" placeholder="مدت (دقیقه)" min="5" value="30" required
+                    class="sm:col-span-2 bg-slate-900/80 border border-slate-700/60 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition">
+
+                <button type="submit" class="sm:col-span-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl py-2.5 text-sm transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i> ثبت
+                </button>
+            </form>
+        </section>
+
+        <!-- Stats & AI Analysis Bar -->
+        <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="glass rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400">کل تسک‌ها</p>
+                    <h3 id="totalCount" class="text-xl font-bold mt-1">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+            </div>
+            <div class="glass rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400">تکمیل شده</p>
+                    <h3 id="completedCount" class="text-xl font-bold mt-1 text-emerald-400">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+            <div class="glass rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400">پیشنهاد هوش مصنوعی</p>
+                    <button id="aiBtn" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg mt-1 transition shadow">
+                        اجرای تحلیلگر هوشمند 🧠
+                    </button>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Task List Header & Filters -->
+        <section class="glass rounded-2xl p-5 shadow-xl space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-sm text-slate-200">فهرست برنامه‌ریزی روزانه</h3>
+                <div class="flex gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+                    <button onclick="filterTasks('all')" id="filterAll" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-medium transition">همه</button>
+                    <button onclick="filterTasks('todo')" id="filterTodo" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">انجام‌نشده</button>
+                    <button onclick="filterTasks('completed')" id="filterCompleted" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">تکمیل‌شده</button>
+                </div>
+            </div>
+
+            <!-- Tasks Container -->
+            <div id="taskList" class="space-y-3">
+                <!-- Dynamically loaded -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-900 mt-auto">
+        SwiftSchedule &copy; 2026 | طراحی شده برای مسابقات خوارزمی
+    </footer>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script>
+        // Register PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((reg) => console.log('Service Worker registered', reg))
+                    .catch((err) => console.log('Service Worker failed', err));
+            });
+        }
+    </script>
+</body>
+</html>
